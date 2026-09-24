@@ -39,6 +39,8 @@ function App() {
     }, [tourPlaying, tourCountries.length, selected, info]);
     const tourIndex = Math.floor(tourTime / 5) % Math.max(1, tourCountries.length);
     const activeCountry = tourCountries[tourIndex];
+    const [hoveredCountry, setHoveredCountry] = useState(null);
+    const spotlightCountry = hoveredCountry || activeCountry;
     const nextCountry = tourCountries[(tourIndex + 1) % Math.max(1, tourCountries.length)];
     const progress = (tourTime % 5) / 5;
     const centerLon = activeCountry ? activeCountry.lon + ((nextCountry.lon - activeCountry.lon + 360) % 360) * progress : 0;
@@ -108,11 +110,11 @@ function App() {
                     {tab === 'map' ?
                         <div className="map-viewport">
                             <div className="map-inner" style={{ transform: `scale(${zoom})` }}><svg viewBox="0 0 1100 550" preserveAspectRatio="xMidYMid meet" aria-label="Interactive world population map"><defs><radialGradient id="ocean"><stop stopColor="#17232b" /><stop offset="1" stopColor="#0d141e" /></radialGradient></defs><rect width="1100" height="550" fill="url(#ocean)" /><path d={path({ type: 'Sphere' })} fill="#152831" stroke="#4a776e" /><path d={path(geoGraticule10())} fill="none" stroke="#24313b" strokeWidth=".55" />{world.features.filter(f => f.id !== '010').map(f => {
-                                const c = countries.find(c => c.id === f.id); return <path key={f.id || f.properties.name} d={path(f)} className={`country-shape ${c?.code === activeCountry?.code ? 'spotlight' : ''} ${c && region !== 'All regions' && c.region !== region ? 'dim' : ''}`}
-                                    onClick={() => c && setSelected(c)}><title>{c?.name || f.properties.name}</title></path>
+                                const c = countries.find(c => c.id === f.id); return <path key={f.id || f.properties.name} d={path(f)} className={`country-shape ${c?.code === spotlightCountry?.code ? 'spotlight' : ''} ${c && region !== 'All regions' && c.region !== region ? 'dim' : ''}`}
+                                    onMouseEnter={() => setHoveredCountry(c || null)} onMouseLeave={() => setHoveredCountry(null)} onClick={() => c && setSelected(c)}><title>{c?.name || f.properties.name}</title></path>
                             })}</svg>{countries.filter(c => (region === 'All regions' || c.region === region) && geoDistance([c.lon, c.lat], [centerLon, centerLat]) < Math.PI / 2).map(c => {
-                                const [x, y] = projection([c.lon, c.lat]); return <button key={c.code} className={`map-marker ${c.code === activeCountry?.code ? 'minor spotlight' : 'minor'}`} style={{ left: `${x / 11}%`, top: `${y / 5.5}%` }}
-                                    onClick={() => setSelected(c)} title={`Explore ${c.name}`}><span className="marker-card"><span><Flag code={c.code} />{c.name}</span><strong><Counter value={population(c, seconds)} /></strong></span><span className="map-dot" /></button>
+                                const [x, y] = projection([c.lon, c.lat]); return <button key={c.code} className={`map-marker ${c.code === spotlightCountry?.code ? 'minor spotlight' : 'minor'}`} style={{ left: `${x / 11}%`, top: `${y / 5.5}%` }}
+                                    onMouseEnter={() => setHoveredCountry(c)} onMouseLeave={() => setHoveredCountry(null)} onFocus={() => setHoveredCountry(c)} onBlur={() => setHoveredCountry(null)} onClick={() => setSelected(c)} title={`Explore ${c.name}`}><span className="marker-card"><span><Flag code={c.code} />{c.name}</span><strong><Counter value={population(c, seconds)} /></strong></span><span className="map-dot" /></button>
                             })}
                             </div>
 
@@ -136,6 +138,12 @@ function App() {
                             onClick={() => setSelected(c)}><span className="rank">{i + 1}</span><Flag code={c.code} /><span className="country-name">{c.name}<small>{c.region}</small></span><Counter value={population(c, seconds)} /><ChevronRight size={15} /></button>)}{!filtered.length && <p className="empty">No countries match your search.</p>}
                         </div>
                     }
+
+                    {tab === 'map' && spotlightCountry && <button className="population-spotlight" onClick={() => setSelected(spotlightCountry)} aria-label={`Population details for ${spotlightCountry.name}`}>
+                        <span className="spotlight-identity" key={spotlightCountry.code}><Flag code={spotlightCountry.code} /><span><small>COUNTRY SPOTLIGHT</small><strong>{spotlightCountry.name}</strong></span></span>
+                        <span className="spotlight-population"><small>Estimated population</small><strong><Counter value={population(spotlightCountry, seconds)} /></strong></span>
+                        <ChevronRight size={16} />
+                    </button>}
 
                     <div className="map-footer"><span><span className="status-dot" /> {paused ? 'Simulation paused' : 'Counters updating'} · {speed.toLocaleString()}× speed</span><button
                         onClick={() => setInfo(true)}><Info size={13} /> How estimates work</button>

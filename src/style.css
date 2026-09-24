@@ -14,3 +14,13 @@
 .map-marker.minor:is(:hover,:focus-visible) .marker-card>span{font-size:9px;white-space:normal}
 .map-marker.minor:is(:hover,:focus-visible) .marker-card strong{font-size:10px;margin-top:3px}
 .map-marker.minor:is(:hover,:focus-visible) .fi{outline:none;flex-shrink:0}
+
+.population-spotlight{display:flex;align-items:center;gap:16px;width:100%;padding:12px 20px;text-align:left;background:#162b25;border-top:1px solid #365b4d}
+.spotlight-identity{display:flex;align-items:center;gap:10px;flex:1;min-width:0;animation:fade .25s}
+.spotlight-identity>.fi{font-size:20px;flex-shrink:0}
+.population-spotlight small{display:block;color:#91b3a5;font-size:9px;margin-bottom:4px}
+.spotlight-identity small{font-size:7px;letter-spacing:1px}
+.spotlight-identity strong{display:block;font-size:12px;font-weight:500;overflow-wrap:anywhere}
+.spotlight-population{flex-shrink:0}.spotlight-population>strong{font-size:18px;color:#c5f6df;font-weight:550}
+.population-spotlight>svg{flex-shrink:0;color:#8ac7ae}
+@media(max-width:500px){.population-spotlight{padding:10px 12px;gap:9px}.spotlight-population>strong{font-size:15px}.spotlight-identity strong{font-size:10px}.spotlight-identity>.fi{font-size:16px}}

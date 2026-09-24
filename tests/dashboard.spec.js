@@ -10,12 +10,15 @@ test('globe tour rotates, spotlights countries and pauses', async ({ page }) => 
   await expect(play).toBeVisible();
   const card = page.locator('.country-card.spotlight h3');
   const first = await card.textContent();
+  await expect(page.locator('.population-spotlight')).toContainText(first);
+  await expect(page.locator('.spotlight-population .counter')).toBeVisible();
   const shape = page.locator('.country-shape').first();
   const initialPath = await shape.getAttribute('d');
   await play.click();
   await expect.poll(() => shape.getAttribute('d')).not.toBe(initialPath);
   await expect(card).not.toHaveText(first, { timeout: 8000 });
   await page.getByRole('button', { name: 'Pause globe tour', exact: true }).click();
+  await expect(page.locator('.population-spotlight')).toContainText(await card.textContent());
   const frozen = await shape.getAttribute('d');
   await page.waitForTimeout(400);
   expect(await shape.getAttribute('d')).toBe(frozen);
